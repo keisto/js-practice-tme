@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const chalk = require('chalk')
+const render = require('./render')
 
 const forbiddenDirs = ['node_modules']
 
@@ -16,10 +17,10 @@ class Runner {
       global.beforeEach = (fn) => {
         beforeEaches.push(fn)
       }
-      global.it = (desc, fn) => {
+      global.it = async (desc, fn) => {
         beforeEaches.forEach((func) => func())
         try {
-          fn()
+          await fn()
           console.log(chalk.green(`\t🟢 - ${desc}`))
         } catch (err) {
           const message = err.message.replace(/\n/g, '\n\t\t')
@@ -27,6 +28,7 @@ class Runner {
           console.error(chalk.red('\t', message))
         }
       }
+      global.render = render
 
       try {
         require(file.name)
